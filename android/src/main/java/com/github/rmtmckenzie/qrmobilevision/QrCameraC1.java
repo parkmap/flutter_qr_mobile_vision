@@ -58,16 +58,16 @@ class QrCameraC1 implements QrCamera {
         int result;
         switch (rotationCompensation) {
             case 0:
-                result = 0;
+                result = Surface.ROTATION_0;
                 break;
             case 90:
-                result = 90;
+                result = Surface.ROTATION_90;
                 break;
             case 180:
-                result = 180;
+                result = Surface.ROTATION_180;
                 break;
             case 270:
-                result = 270;
+                result = Surface.ROTATION_270;
                 break;
             default:
                 result = Surface.ROTATION_0;
@@ -77,12 +77,12 @@ class QrCameraC1 implements QrCamera {
     }
 
     @Override
-    public void start() throws QrReader.Exception {
+    public void start(final int cameraDirection) throws QrReader.Exception {
         int numberOfCameras = android.hardware.Camera.getNumberOfCameras();
         info = new android.hardware.Camera.CameraInfo();
         for (int i = 0; i < numberOfCameras; i++) {
             android.hardware.Camera.getCameraInfo(i, info);
-            if (info.facing == android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK) {
+            if (info.facing == (cameraDirection == 0 ? android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT : android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK)) {
                 camera = android.hardware.Camera.open(i);
                 break;
             }
@@ -120,6 +120,7 @@ class QrCameraC1 implements QrCamera {
 
                         QrDetector.Frame frame = new Frame(data,
                             previewSize.width, previewSize.height, getFirebaseOrientation(), IMAGEFORMAT);
+
                         detector.detect(frame);
                     } else {
                         //TODO: something better here?
